@@ -1,0 +1,46 @@
+{
+  "schema": "nexfoot-dependencies-v1",
+  "sdk": {
+    "url": "https://github.com/Jieli-Tech/fw-AC63_BT_SDK.git",
+    "commit": "fdc018de81629e21e594d677cf05f87d288be0f0",
+    "license": "Apache-2.0, with upstream per-file exceptions"
+  },
+  "bootloader": {
+    "url": "https://github.com/Jieli-Tech/fw-Bootloader.git",
+    "commit": "ff3b9299d1b94d834b995fd858b3f75e2faa9840"
+  },
+  "recovery": {
+    "path": "recovery/uboot_recovery.boot",
+    "sha256": "a4a40e500436d19076eddb2d5b19abec057b37eb65fc7879b210afd828081744",
+    "protectedRegionPath": "recovery/protected-region.bin",
+    "protectedRegionSha256": "57c1988eccbaa35ac8c4219d4e43459bd06864aff5ae8998856abd562905bf1e"
+  },
+  "sdkFiles": {
+    "cpu/bd19/tools/bd19loader.bin": "faa1b519a3ff1b082f11ccafac8c73d31150161ac972ef9f1934002bcbb8df4f",
+    "cpu/bd19/tools/isd_download.exe": "54acb0592379dab66d4570ed2eade78a099352515383f259ca195ec45677e9b1",
+    "cpu/bd19/tools/lz4_packet.exe": "9c87e90e6a7f9df513c6e8e8ccf858293fecd50ba11989588a0a88a97ae1b3f7",
+    "cpu/bd19/tools/cfg_tool.bin": "0ccc2fd579597ca9d91e485457673d7f2525e00d5bfe8d081920e95e4062a0f1",
+    "cpu/bd19/tools/p11_code.bin": "93d6a720de014714dc6b8e51759bd7c886bbd2b186ad89e7aece42d5629f8163",
+    "cpu/bd19/tools/flash_params.bin": "d21481c8940bb4a85561c1d65e9f4d913de8a3adb6dace2073f8d90ee732a3c5",
+    "cpu/bd19/liba/btstack.a": "2c1c421433e184168617b3214af6fe434ba2e3392561bb17f847455cbbdf6486",
+    "cpu/bd19/liba/cpu.a": "2c410227dbb1e1b701b1351467dece02f6628bb5d37ef9bc8579300c276b9fe8",
+    "cpu/bd19/liba/MotionDetection.a": "ad654dacce2eb77666e3ad5058ca53d35552222e700a8c06b2bae041f3d37737",
+    "cpu/bd19/liba/lc3_codec_lib.a": "c23d9591804b8842f10f664eebcb2cee12dbe01b190b78f18e129d020cd41eed",
+    "cpu/bd19/liba/opus_enc_lib.a": "f3e02df6c18cb86de216a8dfa71df789c9896374b4894c6e9155cdcb754ff568",
+    "cpu/bd19/liba/wav_dec_lib.a": "f2477f9e5c65499e0e74bb774dd53e8e9fcc8d548bd18c0947d56799dabccb91",
+    "cpu/bd19/liba/fmna_auth.a": "1201a619e201d0bd1107aad0e565a931721b17e2d27cacccf0207ecc85d18ca2",
+    "apps/common/third_party_profile/tuya_protocol/sdk/lib/lib_tuya_v200_Q32S.a": "d9d4aef6bc28bc1abb1d8a3cfae8a81374da87087299bb664294b8c9418e0600",
+    "cpu/bd19/liba/system.a": "f6b32543be93f5106bba32e50a85e61e1959d669aa267188b8ec097dcce6b166",
+    "cpu/bd19/liba/update.a": "75348691c96a70b176cff9ad038a2cd0b245105d53a53683b2a444efa7adbd1e",
+    "cpu/bd19/tools/ota.bin": "53f68dedadfb0cdd70f2e392d2b14958ec668c8737f60e10ead43a25f9bedf33",
+    "cpu/bd19/liba/agreement.a": "0be3e08395129ade4e92d5c9e8d6dc36dad8b07f8ddfb729dffad39dad429088",
+    "cpu/bd19/liba/msbc_codec_lib.a": "2472b57212fddb8230c120eacb19ce369c2123f276faade5a4e8e9b0df6edb55",
+    "cpu/bd19/liba/media.a": "9ea9f1986df2e16b0846d5e7d2c0ae1b66d33457d30633cb81b2738540f0bea9",
+    "cpu/bd19/liba/btctrler.a": "e35f01d94229fffe7e2734d69fae0e7b1910e5f07a53ce397b38253932366f2e",
+    "cpu/bd19/liba/wtgv2_dec_lib.a": "c4ba08907954f4aa00b9dc09e9e67ae13ff1d39f31c6ec4d965e6a8457f0eff8",
+    "cpu/bd19/liba/lib_adpcm_ima_code.a": "c45846505b73d035d90698b2078fb5cbae8bc2e9bb8fd712ed1ec2b674196e5d",
+    "cpu/bd19/liba/usbc_codec_lib.a": "c992232cbc33b3524f1936c8d313a421b6a75041a4341f754c884375ed6628f9",
+    "cpu/bd19/liba/fmna_stack.a": "a09e6f4843f6fa26f11f85cffb8f5440c1333f16e7a34d165a6f27ea8e4a9769",
+    "cpu/bd19/liba/rcsp_stack.a": "eaea677460150c5be2f5c12d4b35c048511f56cadf6a5327a870391ce9d8f8fa"
+  }
+}

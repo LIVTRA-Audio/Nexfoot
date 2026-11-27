@@ -1,0 +1,18 @@
+Nexfoot firmware and community development tools
+
+This project includes modifications and additions to the JieLi AC63 Bluetooth
+SDK, upstream https://github.com/Jieli-Tech/fw-AC63_BT_SDK,
+commit fdc018de81629e21e594d677cf05f87d288be0f0.
+Original notices in the source files are retained. Modified upstream files carry
+a Nexfoot modification notice. The upstream root license is Apache-2.0.
+
+The recovery boot is built from JieLi fw-Bootloader,
+https://github.com/Jieli-Tech/fw-Bootloader,
+commit ff3b9299d1b94d834b995fd858b3f75e2faa9840,
+with recovery/recovery_main.patch. Its upstream root license is Apache-2.0.
+
+Third-party dependencies retain their upstream license terms and per-file
+notices. See docs/source-scope.md.
+
+Nexfoot/LIVTRA names and marks identify the project and product. The Apache
+license does not grant rights to use trademarks beyond its stated terms.

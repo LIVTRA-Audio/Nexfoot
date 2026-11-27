@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nexfoot Firmware Update</title>
+<h1>Nexfoot Firmware Update</h1>
+<p>Choose a trusted community firmware package and connect Nexfoot in update mode.</p>
+<label>Firmware <input id="package" type="file" accept=".nexfoot"></label>
+<button id="install" disabled>Install on Nexfoot</button>
+<progress id="progress" value="0" max="1" aria-label="Flash progress"></progress>
+<p id="status" role="status"></p>
+<script type="module">
+import { UPDATE_FILTER, installPackage, readPackage } from "./nexfoot.js";
+const input = document.querySelector("#package");
+const button = document.querySelector("#install");
+const progress = document.querySelector("#progress");
+const status = document.querySelector("#status");
+let selected;
+if (!navigator.hid) status.textContent = "Open this page in Chrome or Edge from HTTPS or localhost.";
+input.addEventListener("change", async () => {
+  const file = input.files[0];
+  selected = undefined;
+  button.disabled = true;
+  if (!file) return;
+  try {
+    const candidate = await readPackage(file);
+    if (input.files[0] !== file) return;
+    selected = candidate;
+    status.textContent = `Ready to install ${selected.manifest.version}.`;
+    button.disabled = !navigator.hid;
+  } catch (error) {
+    if (input.files[0] === file) status.textContent = error.message;
+  }
+});
+button.addEventListener("click", async () => {
+  button.disabled = true;
+  input.disabled = true;
+  progress.value = 0;
+  try {
+    status.textContent = "Choose Nexfoot in the browser prompt.";
+    const [device] = await navigator.hid.requestDevice({ filters: [UPDATE_FILTER] });
+    if (!device) return;
+    status.textContent = "Installing. Keep Nexfoot connected.";
+    await installPackage(device, selected.image, fraction => { progress.value = fraction; });
+    status.textContent = "Flash verified. Nexfoot is restarting.";
+  } catch (error) {
+    status.textContent = error.message;
+  } finally {
+    input.disabled = false;
+    button.disabled = false;
+  }
+});
+</script>

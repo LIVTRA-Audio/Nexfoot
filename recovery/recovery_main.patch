@@ -1,0 +1,145 @@
+diff --git a/user_boot/app/src/main.c b/user_boot/app/src/main.c
+index 520da2e..e625b4c 100644
+--- a/user_boot/app/src/main.c
++++ b/user_boot/app/src/main.c
+@@ -12,6 +12,7 @@
+ #include "user.h"
+ #include "mask_api.h"
+ #include "norflash.h"
++#include "gpio.h"
+
+ #define LOG_TAG_CONST       BOOT
+ #define LOG_TAG             "[main]"
+@@ -20,6 +21,100 @@
+ #define LOG_INFO_ENABLE
+ #include "log.h"
+
++/*
++ * NEXFOOT MD400 recovery boot policy.
++ *
++ * PP0 drives the board's PWR_CTL latch.  PB1 is the active-high ON/OFF key.
++ * With the PA0 USB_CHECK input high, holding PB1 for two seconds at boot
++ * enters the existing BD19 mask UBOOT USB updater.  A broken JLFS or failed
++ * app jump also enters UBOOT without depending on the key.
++ */
++#define MD400_POWER_LATCH_PORT          IO_PORTP_00
++#define MD400_POWER_KEY_PORT            IO_PORTB_01
++#define MD400_USB_CHECK_PORT            IO_PORTA_00
++#define MD400_RECOVERY_HOLD_MS           2000
++#define MD400_RECOVERY_POLL_MS           10
++#define MD400_UPGRADE_USB_SOFT_KEY       2
++#define MD400_MASK_SOFT_FLAG_ADDR        0x001a1830u
++#define MD400_MASK_SOFT_FLAG_VALID       BIT(6)
++#define MD400_SOFTFLAG_OUT1              7
++
++extern void nvram_set_boot_state(u32 state);
++
++static void md400_power_latch_hold(void)
++{
++    gpio_set_pull_up(MD400_POWER_LATCH_PORT, 0);
++    gpio_set_pull_down(MD400_POWER_LATCH_PORT, 0);
++    gpio_set_die(MD400_POWER_LATCH_PORT, 1);
++    gpio_write(MD400_POWER_LATCH_PORT, 1);
++    gpio_set_direction(MD400_POWER_LATCH_PORT, 0);
++}
++
++static void md400_power_key_init(void)
++{
++    gpio_set_pull_up(MD400_POWER_KEY_PORT, 0);
++    gpio_set_pull_down(MD400_POWER_KEY_PORT, 0);
++    gpio_set_die(MD400_POWER_KEY_PORT, 1);
++    gpio_set_direction(MD400_POWER_KEY_PORT, 1);
++}
++
++static void md400_usb_check_init(void)
++{
++    gpio_set_pull_up(MD400_USB_CHECK_PORT, 0);
++    gpio_set_pull_down(MD400_USB_CHECK_PORT, 1);
++    gpio_set_die(MD400_USB_CHECK_PORT, 1);
++    gpio_set_direction(MD400_USB_CHECK_PORT, 1);
++}
++
++static u8 md400_usb_cable_present(void)
++{
++    return gpio_read(MD400_USB_CHECK_PORT) ? 1 : 0;
++}
++
++static u8 md400_recovery_key_held(void)
++{
++    u32 held_ms = 0;
++
++    if (!md400_usb_cable_present() || !gpio_read(MD400_POWER_KEY_PORT)) {
++        return 0;
++    }
++
++    while (held_ms < MD400_RECOVERY_HOLD_MS) {
++        mdelay(MD400_RECOVERY_POLL_MS);
++        if (!md400_usb_cable_present() || !gpio_read(MD400_POWER_KEY_PORT)) {
++            return 0;
++        }
++        held_ms += MD400_RECOVERY_POLL_MS;
++    }
++    return 1;
++}
++
++static void md400_mask_keep_power_latch(void)
++{
++    volatile u8 *soft_flag = (volatile u8 *)MD400_MASK_SOFT_FLAG_ADDR;
++    u8 flag0 = (JL_IOMAP->CON0 & BIT(16)) ? BIT(2) : 0;
++
++    /* Exact BD19 mask NVRAM layout used by SDK mask_softflag_config(). */
++    soft_flag[0] |= MD400_MASK_SOFT_FLAG_VALID;
++    soft_flag[8] = flag0;
++    soft_flag[9] = MD400_SOFTFLAG_OUT1 << 5;
++    soft_flag[26] = 0;
++    soft_flag[27] = 0;
++}
++
++__attribute__((noreturn))
++static void md400_enter_mask_uboot(const char *reason)
++{
++    log_info("NEXFOOT recovery: %s\n", reason);
++    md400_power_latch_hold();
++    md400_mask_keep_power_latch();
++    nvram_set_boot_state(MD400_UPGRADE_USB_SOFT_KEY);
++    chip_reset();
++    while (1) {
++        asm("nop");
++    }
++}
++
+ #ifdef __DEBUG
+ __attribute__((weak))
+ void exception_analyze(u32 *sp)
+@@ -63,6 +158,10 @@ int main(void)
+         sys_clk_init(24000000, 48000000);
+     }
+
++    md400_power_latch_hold();
++    md400_power_key_init();
++    md400_usb_check_init();
++
+ #ifdef __DEBUG
+     u32 ut_buad = 0;
+     char uttx[8] = {0};
+@@ -90,6 +189,11 @@ int main(void)
+     u8 err = jlfs_mount();//非0表示fs初始化失败，可能是升级未完成
+     if (err) {
+         log_error("jlfs_mount err:%d\n", err);
++        md400_enter_mask_uboot("invalid JLFS");
++    }
++
++    if (md400_recovery_key_held()) {
++        md400_enter_mask_uboot("PB1 long hold");
+     }
+
+
+@@ -113,6 +217,8 @@ int main(void)
+
+     sfc_mode_boot();
+
++    md400_enter_mask_uboot("app boot failed");
++
+ __boot_failed:
+
+     while (1) {
